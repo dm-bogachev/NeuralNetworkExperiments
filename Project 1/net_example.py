@@ -1,8 +1,10 @@
-import numpy as np
-import matplotlib.pyplot as plt
-import NeuralNetwork as Net
-from PIL import Image
 import glob
+
+import matplotlib.pyplot as plt
+import numpy as np
+from PIL import Image
+
+import NeuralNetwork as Net
 
 
 def image_to_input(path):
@@ -86,6 +88,8 @@ def test_my_data(net):
         show_image(image_data)
         print('Answer is', net.query(image_data))
 
+train = False
+check = True
 
 # Neural network parameters
 input_nodes = 28*28
@@ -99,18 +103,19 @@ net = Net.NeuralNetwork(input_nodes,
                         learning_rate,)
 net.load_weights()
 
-# Load train data and train net
-net.clear_weights()
-data_train = load_data('mnist_dataset/mnist_train.csv')
-epochs = 5
-for i in range(epochs):
-    train_net(net, data_train)
-    net.save_weights()
+if train:
+    # Load train data and train net
+    net.clear_weights()
+    data_train = load_data('mnist_dataset/mnist_train.csv')
+    epochs = 5
+    for i in range(epochs):
+        print('Epoch:', i+1, 'training start')
+        train_net(net, data_train)
+        net.save_weights()
+        print('Epoch:', i+1, 'training complete')
 
-# Load test data and calculate efficiency
-data_test = load_data('mnist_dataset/mnist_test.csv')
-score, efficiency = calculate_score(net, data_test)
-print(score, efficiency)
-
-#d, c = get_input(data_test, 1, True)
-#test_my_data(net)
+if check:
+    # Load test data and calculate efficiency
+    data_test = load_data('mnist_dataset/mnist_test.csv')
+    score, efficiency = calculate_score(net, data_test)
+    print(score, efficiency)
