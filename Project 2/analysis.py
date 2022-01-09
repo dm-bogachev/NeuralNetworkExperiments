@@ -70,76 +70,41 @@ def get_input(data, id, show_im=False):
     #
     return inputs, correct
 
-# Tensorflow test
-# from tensorflow.python.client import device_lib
-# print(device_lib.list_local_devices())
 
-
-training = True
-if training:
-    # Create model
-    model = keras.Sequential([
-        layers.Flatten(input_shape=(28, 28)),
-        layers.Dense(256, activation='sigmoid'),
-        #layers.Dropout(0.2),
-        layers.Dense(10),
-    ])
-    # Prepare data
-    usemnist = False
-    if usemnist:
-        print("Training and test data preparation started")
-        mnist = tf.keras.datasets.mnist
-        (x_train, y_train), (x_test, y_test) = mnist.load_data()
-        x_train, x_test = x_train / 255.0, x_test / 255.0
-        print("Training and test data preparation finished")
-    else:
-        print("Training data preparation started")
-        data_train = load_data('mnist_dataset/mnist_train.csv')
-        x_train = []
-        y_train = []
-        for i, data in enumerate(data_train):
-            all_values = data.split(',')
-            correct = int(all_values[0])
-            inputs = np.asfarray(all_values[1:])
-            targets = np.zeros(10) + 0.01
-            targets[correct] = 0.99
-            x_train.append(inputs.reshape(28, 28))
-            y_train.append(correct)
-        x_train = np.array(x_train)
-        y_train = np.array(y_train)
-        print("Training data preparation finished")
-    loadtest = True
-    if loadtest:
-        print("Test data preparation started")
-        data_train = load_data('mnist_dataset/mnist_test.csv')
-        x_test = []
-        y_test = []
-        for i, data in enumerate(data_train):
-            all_values = data.split(',')
-            correct = int(all_values[0])
-            inputs = np.asfarray(all_values[1:])
-            targets = np.zeros(10) + 0.01
-            targets[correct] = 0.99
-            x_test.append(inputs.reshape(28, 28))
-            y_test.append(correct)
-        x_test = np.array(x_test)
-        y_test = np.array(y_test)
-        print("Test data preparation finished")
+# Prepare data
+print("Training and test data preparation started")
+mnist = tf.keras.datasets.mnist
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+x_train, x_test = x_train / 255.0, x_test / 255.0
+print("Training and test data preparation finished")
+# Create model
+model = keras.Sequential([
+    layers.Flatten(input_shape=(28, 28)),
+    layers.Dense(256, activation='sigmoid'),
+    # layers.Dropout(0.2),
+    layers.Dense(10),
+])
+epochs_array = range(1, 100)
+result = []
+for epochs in epochs_array:
     # Train
     print("Model training started")
     loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
     optimizer = keras.optimizers.Adam(learning_rate=0.001)
     model.compile(optimizer=optimizer, metrics=['accuracy'], loss=loss_fn)
-    model.fit(x_train, y_train, epochs=5, )
+    model.fit(x_train, y_train, epochs=1, )
     model.save('saved_model')
     print("Model training finished")
-    if loadtest:
-        print("Model evaluation started")
-        res = model.evaluate(x_test,  y_test, verbose=2)
-        print("Model evaluation finished")
-else:
-    model = tf.keras.models.load_model('saved_model')
 
+    print("Model evaluation started")
+    res = model.evaluate(x_test,  y_test, verbose=2)
+    print("Model evaluation finished, res =", res[1])
+    result.append(res[1])
+
+x = np.array(epochs_array)
+y = np.array(result)
+plt.scatter(x, y)
+plt.show()
 
 # for i in range(10):
 #     predictions = model((x_train[i, :]).reshape(1, 28, 28)).numpy()
