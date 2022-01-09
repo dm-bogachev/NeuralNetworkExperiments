@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import NeuralNetwork as Net
 from PIL import Image
+import glob
 
 
 def image_to_input(path):
@@ -38,10 +39,12 @@ def show_mnist_image(data_list, id):
     # plt.imshow(image_array, cmap='Greys', interpolation='None')
     # plt.show()
 
+
 def show_image(image):
     image_array = np.asfarray(image).reshape((28, 28))
     plt.imshow(image_array, cmap='Greys', interpolation='None')
     plt.show()
+
 
 def train_net(net, data):
     # Training process
@@ -76,11 +79,19 @@ def calculate_score(net, test_data, show=False):
     return scorecard, efficiency
 
 
+def test_my_data(net):
+    files_list = glob.glob('my_images/*.png')
+    for file in files_list:
+        image_data = image_to_input(file)
+        show_image(image_data)
+        print('Answer is', net.query(image_data))
+
+
 # Neural network parameters
 input_nodes = 28*28
-hidden_nodes = 100
+hidden_nodes = 200
 output_nodes = 10
-learning_rate = 0.2
+learning_rate = 0.1
 # Weight_random_function=lambda x,y: np.random.normal(0.0, pow(y,-0.5), (x,y)))
 net = Net.NeuralNetwork(input_nodes,
                         hidden_nodes,
@@ -88,22 +99,18 @@ net = Net.NeuralNetwork(input_nodes,
                         learning_rate,)
 net.load_weights()
 
-# # Load train data and train net
-# data_train = load_data('mnist_dataset/mnist_train.csv')
-# train_net(net, data_train)
-# net.save_weights()
+# Load train data and train net
+net.clear_weights()
+data_train = load_data('mnist_dataset/mnist_train.csv')
+epochs = 5
+for i in range(epochs):
+    train_net(net, data_train)
+    net.save_weights()
 
-# # Load test data and calculate efficiency
-# data_test = load_data('mnist_dataset/mnist_test.csv')
-# score, efficiency = calculate_score(net, data_test)
-# print(score, efficiency)
+# Load test data and calculate efficiency
+data_test = load_data('mnist_dataset/mnist_test.csv')
+score, efficiency = calculate_score(net, data_test)
+print(score, efficiency)
 
 #d, c = get_input(data_test, 1, True)
-
-a = image_to_input('test.png')
-show_image(a)
-print(net.query(a))
-
-
-# print(net.query(d))
-# print(c)
+#test_my_data(net)
