@@ -119,3 +119,5 @@ if check:
     data_test = load_data('mnist_dataset/mnist_test.csv')
     score, efficiency = calculate_score(net, data_test)
     print(score, efficiency)
+
+test_my_data(net)
